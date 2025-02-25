@@ -8,19 +8,403 @@
     <meta name="theme-color" content="#007ACC">
     <link rel="shortcut icon" href="TemplateData/favicon.ico">
     <link rel="stylesheet" href="TemplateData/style.css">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="author" content="Your Name">
     <meta name="keywords" content="Snow Rider 3D, skiing game, winter sports, snowboarding, ski game, mountain landscapes, skiing adventure, snowboarding adventure, snowy mountain, sleigh ride, winter game">
     <script src="TemplateData/UnityProgress.js"></script>
     <script src="Build/UnityLoader.js"></script>
-    <script>
-        var gameInstance = UnityLoader.instantiate("gameContainer", "Build/SnowRider3D-gd-1.json", {onProgress: UnityProgress,Module:{onRuntimeInitialized: function() {UnityProgress(gameInstance, "complete")}}});
-    </script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #1a1a1a;
+            position: fixed;
+        }
+
+        #game-wrapper {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+        }
+
+        .webgl-content {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            max-width: 1920px;
+            max-height: 1080px;
+            margin: auto;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        #gameContainer {
+            width: 100% !important;
+            height: 100% !important;
+            position: absolute !important;
+            top: 50% !important;
+            left: 50% !important;
+            transform: translate(-50%, -50%) !important;
+            background-color: #000;
+        }
+
+        .mobile-controls {
+            position: fixed !important;
+            bottom: 30px !important;
+            left: 50% !important;
+            transform: translateX(-50%) !important;
+            display: flex !important;
+            justify-content: center !important;
+            align-items: center !important;
+            gap: 20px !important;
+            padding: 15px 25px !important;
+            background: rgba(0, 0, 0, 0.4) !important;
+            backdrop-filter: blur(10px) !important;
+            -webkit-backdrop-filter: blur(10px) !important;
+            border-radius: 40px !important;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3) !important;
+            z-index: 99999 !important;
+        }
+
+        .control-btn {
+            width: 65px !important;
+            height: 65px !important;
+            border-radius: 50% !important;
+            background: rgba(255, 255, 255, 0.9) !important;
+            border: none !important;
+            color: #2a2a2a !important;
+            font-size: 0 !important;
+            font-weight: bold !important;
+            display: flex !important;
+            justify-content: center !important;
+            align-items: center !important;
+            cursor: pointer !important;
+            transition: all 0.2s ease !important;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2),
+                       inset 0 2px 4px rgba(255, 255, 255, 0.5) !important;
+            position: relative !important;
+            overflow: hidden !important;
+        }
+
+        .control-btn::before,
+        .control-btn::after {
+            content: '' !important;
+            position: absolute !important;
+            background: #2a2a2a !important;
+            border-radius: 4px !important;
+            transition: all 0.2s ease !important;
+        }
+
+        /* 左箭头样式 */
+        #left-btn::before {
+            width: 24px !important;
+            height: 5px !important;
+            transform: rotate(45deg) translate(2px, 10px) !important;
+        }
+
+        #left-btn::after {
+            width: 24px !important;
+            height: 5px !important;
+            transform: rotate(-45deg) translate(2px, -10px) !important;
+        }
+
+        /* 右箭头样式 */
+        #right-btn::before {
+            width: 24px !important;
+            height: 5px !important;
+            transform: rotate(-45deg) translate(-2px, 10px) !important;
+        }
+
+        #right-btn::after {
+            width: 24px !important;
+            height: 5px !important;
+            transform: rotate(45deg) translate(-2px, -10px) !important;
+        }
+
+        /* 跳跃箭头样式 */
+        .jump-btn {
+            width: 85px !important;
+            height: 85px !important;
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.85)) !important;
+        }
+
+        .jump-btn::before {
+            width: 5px !important;
+            height: 32px !important;
+            transform: translateY(8px) !important;
+        }
+
+        .jump-btn::after {
+            width: 24px !important;
+            height: 5px !important;
+            transform: rotate(-45deg) translate(9px, -4px) !important;
+            box-shadow: -17px 0px 0 #2a2a2a !important;
+            border-radius: 4px !important;
+        }
+
+        /* 按钮激活状态 */
+        .control-btn:active {
+            transform: scale(0.92) !important;
+            background: rgba(255, 255, 255, 1) !important;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15),
+                       inset 0 1px 2px rgba(255, 255, 255, 0.3) !important;
+        }
+
+        .control-btn:active::before,
+        .control-btn:active::after {
+            background: #000 !important;
+        }
+
+        /* 移动端样式适配 */
+        @media (max-width: 768px) {
+            .control-btn {
+                width: 55px !important;
+                height: 55px !important;
+            }
+
+            #left-btn::before,
+            #left-btn::after,
+            #right-btn::before,
+            #right-btn::after {
+                width: 20px !important;
+                height: 4px !important;
+            }
+
+            #left-btn::before {
+                transform: rotate(45deg) translate(2px, 8px) !important;
+            }
+
+            #left-btn::after {
+                transform: rotate(-45deg) translate(2px, -8px) !important;
+            }
+
+            #right-btn::before {
+                transform: rotate(-45deg) translate(-2px, 8px) !important;
+            }
+
+            #right-btn::after {
+                transform: rotate(45deg) translate(-2px, -8px) !important;
+            }
+
+            .jump-btn {
+                width: 70px !important;
+                height: 70px !important;
+            }
+
+            .jump-btn::before {
+                height: 26px !important;
+                transform: translateY(6px) !important;
+            }
+
+            .jump-btn::after {
+                width: 20px !important;
+                transform: rotate(-45deg) translate(8px, -3px) !important;
+                box-shadow: -14px 0px 0 #2a2a2a !important;
+            }
+        }
+
+        @media (orientation: landscape) and (max-height: 500px) {
+            .control-btn {
+                width: 45px !important;
+                height: 45px !important;
+            }
+
+            #left-btn::before,
+            #left-btn::after,
+            #right-btn::before,
+            #right-btn::after {
+                width: 16px !important;
+                height: 3px !important;
+            }
+
+            #left-btn::before {
+                transform: rotate(45deg) translate(1px, 6px) !important;
+            }
+
+            #left-btn::after {
+                transform: rotate(-45deg) translate(1px, -6px) !important;
+            }
+
+            #right-btn::before {
+                transform: rotate(-45deg) translate(-1px, 6px) !important;
+            }
+
+            #right-btn::after {
+                transform: rotate(45deg) translate(-1px, -6px) !important;
+            }
+
+            .jump-btn {
+                width: 60px !important;
+                height: 60px !important;
+            }
+
+            .jump-btn::before {
+                height: 22px !important;
+                transform: translateY(5px) !important;
+            }
+
+            .jump-btn::after {
+                width: 16px !important;
+                transform: rotate(-45deg) translate(6px, -2px) !important;
+                box-shadow: -12px 0px 0 #2a2a2a !important;
+            }
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100000;
+            opacity: 1;
+            transition: opacity 0.3s ease;
+        }
+
+        .loading-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
 </head>
-<body style="overflow:hidden;padding:0px;margin:0px;">
-    <div class="webgl-content">
-        <div id="gameContainer" style="width: 960px; height: 600px; margin: auto"></div>
+<body>
+    <div id="game-wrapper">
+        <div class="webgl-content">
+            <div id="gameContainer"></div>
+        </div>
+        <div class="mobile-controls">
+            <button id="left-btn" class="control-btn"></button>
+            <button id="jump-btn" class="control-btn jump-btn"></button>
+            <button id="right-btn" class="control-btn"></button>
+        </div>
     </div>
+    <div class="loading-overlay">
+        <div class="loading-spinner"></div>
+    </div>
+
+    <script>
+        var gameInstance = UnityLoader.instantiate("gameContainer", "Build/SnowRider3D-gd-1.json", {
+            onProgress: function(gameInstance, progress) {
+                if (progress === 1) {
+                    // 游戏加载完成后隐藏加载界面
+                    document.querySelector('.loading-overlay').classList.add('hidden');
+                }
+                UnityProgress(gameInstance, progress);
+            },
+            Module: {
+                onRuntimeInitialized: function() {
+                    UnityProgress(gameInstance, "complete");
+                }
+            }
+        });
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            let leftPressed = false;
+            let rightPressed = false;
+
+            function simulateKeyEvent(keyCode, type) {
+                const event = new KeyboardEvent(type, {
+                    bubbles: true,
+                    cancelable: true,
+                    keyCode: keyCode
+                });
+                document.dispatchEvent(event);
+            }
+
+            function handleLeft(isPressed) {
+                if (leftPressed !== isPressed) {
+                    leftPressed = isPressed;
+                    simulateKeyEvent(37, isPressed ? 'keydown' : 'keyup');
+                }
+            }
+
+            function handleRight(isPressed) {
+                if (rightPressed !== isPressed) {
+                    rightPressed = isPressed;
+                    simulateKeyEvent(39, isPressed ? 'keydown' : 'keyup');
+                }
+            }
+
+            function handleJump() {
+                simulateKeyEvent(32, 'keydown');
+                setTimeout(() => simulateKeyEvent(32, 'keyup'), 100);
+            }
+
+            ['left', 'right', 'jump'].forEach(id => {
+                const btn = document.getElementById(id + '-btn');
+                if (!btn) return;
+
+                const handleStart = function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (id === 'left') handleLeft(true);
+                    else if (id === 'right') handleRight(true);
+                    else if (id === 'jump') handleJump();
+                };
+
+                const handleEnd = function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (id === 'left') handleLeft(false);
+                    else if (id === 'right') handleRight(false);
+                };
+
+                // Mouse events
+                btn.addEventListener('mousedown', handleStart);
+                btn.addEventListener('mouseup', handleEnd);
+                btn.addEventListener('mouseleave', handleEnd);
+
+                // Touch events
+                btn.addEventListener('touchstart', handleStart);
+                btn.addEventListener('touchend', handleEnd);
+                btn.addEventListener('touchcancel', handleEnd);
+            });
+
+            // 防止页面滚动和缩放
+            document.addEventListener('touchmove', function(e) {
+                e.preventDefault();
+            }, { passive: false });
+
+            document.addEventListener('gesturestart', function(e) {
+                e.preventDefault();
+            });
+
+            // 防止双击缩放
+            document.addEventListener('dblclick', function(e) {
+                e.preventDefault();
+            });
+        });
+    </script>
 </body>
 </html>
-
