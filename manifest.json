@@ -1,3 +1,42 @@
 {
-  
+    "name": "Snow Rider 3D - Ultimate Skiing Adventure",
+    "short_name": "Snow Rider 3D",
+    "description": "Experience the thrill of skiing in Snow Rider 3D! Race down snowy slopes, perform tricks, and collect coins in this exciting free online winter sports game.",
+    "start_url": "https://snowrider-3d.com/",
+    "display": "fullscreen",
+    "background_color": "#1a1a1a",
+    "theme_color": "#007ACC",
+    "icons": [
+        {
+            "src": "TemplateData/icon-192x192.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "TemplateData/icon-512x512.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ],
+    "categories": ["games", "sports", "entertainment"],
+    "keywords": [
+        "Snow Rider 3D",
+        "ski game",
+        "3D skiing",
+        "winter sports",
+        "snowboarding",
+        "racing game",
+        "snow adventure",
+        "arcade game",
+        "free online game",
+        "winter racing"
+    ],
+    "screenshots": [
+        {
+            "src": "TemplateData/screenshot1.jpg",
+            "sizes": "1280x720",
+            "type": "image/jpeg"
+        }
+    ],
+    "orientation": "landscape"
 }
